@@ -9,6 +9,7 @@ import {
   AppState,
   StyleSheet,
   SafeAreaView,
+  TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,7 +26,6 @@ const PrimaryLogin = () => {
     password: '1234',
   };
 
-  // Track if user returns from call
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (appState.match(/inactive|background/) && nextAppState === 'active') {
@@ -39,11 +39,8 @@ const PrimaryLogin = () => {
 
   const handleLogin = async () => {
     if (userID === correctCredentials.userID && password === correctCredentials.password) {
-      // Save login timestamp
       const timestamp = new Date().getTime();
       await AsyncStorage.setItem('primaryLoginTime', JSON.stringify(timestamp));
-
-      // Navigate to Secondary Login
       navigation.navigate('SecondaryLogin');
     } else {
       const newAttempts = attempts + 1;
@@ -54,14 +51,8 @@ const PrimaryLogin = () => {
           'Contact Super Admin',
           'Phone: 9876543210\nEmail: admin@example.com',
           [
-            {
-              text: 'Call Now',
-              onPress: () => Linking.openURL('tel:9876543210'),
-            },
-            {
-              text: 'Cancel',
-              style: 'cancel',
-            },
+            { text: 'Call Now', onPress: () => Linking.openURL('tel:9876543210') },
+            { text: 'Cancel', style: 'cancel' },
           ]
         );
       } else {
@@ -72,7 +63,7 @@ const PrimaryLogin = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Primary Login</Text>
+      <Text style={styles.header}>Enter Your Login Details</Text>
 
       <TextInput
         style={styles.input}
@@ -91,7 +82,16 @@ const PrimaryLogin = () => {
         value={password}
       />
 
-      <Button title="Login" onPress={handleLogin} />
+      <TouchableOpacity style={styles.btn} onPress={handleLogin}>
+        <Text style={styles.registerText}>Login</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Registration')}
+        style={[styles.btn, { backgroundColor: '#28a745', marginTop: 10 }]}
+      >
+        <Text style={styles.registerText}>Register</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -118,5 +118,17 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
     color: 'black',
+  },
+  btn: {
+    marginTop: 20,
+    backgroundColor: '#007bff',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  registerText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
